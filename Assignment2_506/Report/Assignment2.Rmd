@@ -1,0 +1,131 @@
+---
+title: "Assignment2"
+author: "Jittin Pomprakay"
+date: "2024-09-13"
+output:
+  word_document: default
+  html_document: default
+---
+
+# Import titanic_data
+
+```{r}
+library(readr)
+train <- read_csv("../Data/train.csv",
+col_types = cols(Survived = col_integer(),
+Pclass = col_integer(), SibSp = col_integer(),
+Parch = col_integer()))
+```
+
+# Checking for any outliers or abnormal values in any variables group using box plot
+
+Plotting the graph, I use only 6 important variables, including; Pclass, Sex, Age, SipSp, Parch and Fare. To these variables, they can be categorized into two group of data.
+
+1\. Continuous Variables(Quantitative): Only Age and Fare
+
+2\. Categorical Variables(Qualitative): SibSp(siblings/spouses aboard the Titanic), Parch(parents/children aboard the Titanic) and Pcalss(Ticket class)
+
+Note: I don't plot Pclass on the graph because the Pclass only consists of integers 1,2 and 3, so there are no otliers.
+
+## Installing the ggplot2 package (contains a Box Plot maker)
+
+```{r}
+options(repos = c(CRAN = "https://cran.r-project.org"))
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+## Age
+
+```{r}
+ggplot (train, aes(x = as.factor(Survived), y = Age)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 3) +
+  labs(x = "Survived", y = "Age", title = "Boxplot of Age by Survival with Outliers")
+```
+
+## Fare
+
+```{r}
+ggplot (train, aes(x = as.factor(Survived), y = Fare)) +
+  geom_boxplot(outlier.colour = "Green", outlier.shape = 16, outlier.size = 3) +
+  labs(x = "Survived", y = "Fare", title = "Boxplot of Fare by Survival with Outliers")
+```
+
+## SibSp
+
+```{r}
+ggplot (train, aes(x = as.factor(Survived), y = SibSp)) +
+  geom_boxplot(outlier.colour = "Blue", outlier.shape = 16, outlier.size = 3) +
+  labs(x = "Survived", y = "SibSp", title = "Boxplot of SibSp by Survival with Outliers")
+```
+
+## Parch
+
+```{r}
+ggplot (train, aes(x = as.factor(Survived), y = Parch)) +
+  geom_boxplot(outlier.colour = "Yellow", outlier.shape = 16, outlier.size = 3) +
+  labs(x = "Survived", y = "Parch", title = "Boxplot of Parch by Survival with Outliers")
+```
+
+# Creating the table 1 summarizing available data on the titanic_data
+
+Using gtsummary package to create table 1
+
+## Installing gtsummary package
+
+```{r}
+install.packages("gtsummary")
+```
+
+## Creating the table 1
+
+```{r}
+library(gtsummary)
+table1 <- train %>%
+select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare) %>%
+tbl_summary(
+by=Survived,
+statistic = list(all_continuous() ~ "{mean} ({sd})")
+)
+table1
+```
+
+Note: Ticket, Cabin, and Embarked information aren't used because they consist of digit data and are not significant variable for survival analysis.
+
+## The interpretation of table 1
+
+> According to Table 1, 0 and 1 were used to represent surviving and non-surviving passengers, respectively.The total number of surviving passengers is 549, while the non-surviving is 342. The other variables, including **Pclass**, **Sex**, **Age**, **SibSp**, **Parch**, and **Fare**, used the number of surviving and non-surviving passengers to analyze which variables were more likely to influence survival.
+
+The significant variables were divided into two groups of data, like a box plot, consisting of continuous and categorical variables.
+
+### Categorical Variables
+
+> These variables are take a wide range of values, then using them to calculate the mean and SD for statistical analysis.
+
+**Age**
+
+The mean age of non-surviving passengers is 31 years, which is slightly higher than the mean age of surviving passengers, which is 28 years. This may indicate that older passengers had a lower probability of surviving compared to younger passengers. The SD values for both groups also show that age alone may not be the main variable in predicting survival, as they are very similar. Therefore, the other variables also should be considered.
+
+**Fare**
+
+This variable can be linked to the Pclass variable. If they want to get a higher class, they must pay a higher fare. This means that a higher mean fare indicates that most passengers were in a higher class. The mean and SD fare of surviving passengers are significantly different from those of non-surviving passengers. This suggests that passengers who paid more for a higher class had a higher probability of surviving.
+
+### Continuous variables
+
+> These variables are for counting frequency, then converting them to percentages for more comprehensible visualization.
+
+**Pclass (Ticket class)**
+
+Pclass variables indicate to the passenger's ticket class. The data show that The first class has the highest survival rate at 136(40%), followed by class 2 at 87(25%) and class 3 at 119(35%). Especially, ticket class 3 has the highest number of casualties at 372(68%). This means that passengers who paid for higher classes had a better chance of survival.
+
+**Sex**
+
+This variable shows the highest survival rate in females at 233(68%) compared to 109(32%) in males, while males have the highest mortality rate at 468(85%) compared to 81(15%) in females. This means that females have a higher chance of survival compared to males.
+
+**SipSp (Siblings/Spouses aboard the Titanic) and Parch (Parents/Children aboard the Titanic)**
+
+These two variables have similar patterns of information and detail, so I simultaneously interpreted both of them. The passenger who comes alone has the highest mortality rate at 398 (72%) and 445 (81%) for SipSp and Parch, respectively. They also have the highest survival rate at 210 (61%) and 233 (68%). Moreover, both show a similar trend in survival and mortality rates. If we bring one or two parents or siblings, this can increase the probability of surviving, while having more than two parents or siblings can increase the probability of mortality as well.
+
+# Conclusion
+
+All in all, six variables have the potential to be important factors in predicting the survival chances of passengers. Even though the age variable contains some missing information, it is still sufficient for analysis. Based on the available data, younger passengers tend to have a higher chance of survival than older passengers. Surprisingly, females have a significantly higher chance of surviving than males. It cannot be denied that wealth plays a role in increasing the probability of survival, as purchasing power enables one to afford a higher ticket class. According to statistics, most passengers who traveled alone had a lower chance of survival, while traveling with one or two family members increased the chances of surviving.
